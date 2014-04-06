@@ -12,49 +12,95 @@ static __inline__ unsigned long long rdtsc(void)
      return x;
 }
 
-char T[4][8]={"4210944","4212992","4215040","4217088"};
-int plaintext[4]={0x28,0xFF,0x10,0x02};
-int cachedset[4][4]={{264,268,286,268},{292,306,297,323},{342,325,325,338},{362,355,358,375}};
-int uncachedIndices[4][256]={-1};
+//char T[4][8]={"4211008","4213056","4215104","4217152"};
+//int plaintext[4]={0x28,0xFF,0x10,0x02};
+int cachedset[4][4]={{266,265,288,270},{294,307,299,324},{344,327,327,340},{364,357,360, 376}};
+//int uncachedIndices[4][256]={-1};
 int cyc[4][4]={0};
-int rejectedKeyBits[4][256]={-1};
-int rejectedKeyBitsLength[4]={-1};
-int possibleKeySet[16][256]={-1};
+//int rejectedKeyBits[4][256]={-1};
+//int rejectedKeyBitsLength[4]={-1};
+//int possibleKeySet[16][256]={-1};
 
 
-void attack()
+/*void attack()
 {
         int result;
-char buff[10];
-int set[4][256],i,j,k=0;
-//4 look up tables
-for(i=0;i<4;i++)
-{
-k=0;
-for(j=0;j<256;j++)
-{
-sprintf(buff,"%x",(atoi(T[i])+j*4));
-set[i][j]=conversion(buff);
-result = setSearch(i,set[i][j]);
-if(!result)
-{
-        uncachedIndices[i][k]=j;
-        rejectedKeyBits[i][k]=uncachedIndices[i][k]^plaintext[i];
-        k++;
-}
-}
-rejectedKeyBitsLength[i]=k-1;
-}
-for(i=0;i<4;i++)
-{
-for(j=0;j<rejectedKeyBitsLength[i];j++)
-{
-        result=rejectedKeyBits[i][j];
-        possibleKeySet[i][result]=-1;
-}
-}
-}
+	char buff[10];
+	int set[4][256],i,j,k=0;
+	//4 look up tables
+	for(i=0;i<4;i++)
+	{
+		k=0;
+		for(j=0;j<256;j++)
+		{
+			sprintf(buff,"%x",(atoi(T[i])+j*8));
+			set[i][j]=setNumber(buff);
+			result = setSearch(i,set[i][j]);
+			if(!result)
+			{
+			        uncachedIndices[i][k]=j;
+			        rejectedKeyBits[i][k]=uncachedIndices[i][k]^plaintext[i];
+			        k++;
+			}
+		}
+		rejectedKeyBitsLength[i]=k;
+	}
+	
+	printf("\nset[i][j]\n");
+	for(i=0;i<4;i++)
+	{
+		printf("table 1:");
+		for(j=0;j<256;j++)	
+		{
+			printf("%d\t",set[i][j]);
+		}
+		printf("\n");
+	}
+	
+	printf("\nRejected key bits length");
+	for(i=0;i<4;i++)
+		printf("%d\t",rejectedKeyBitsLength[i]);
+	
+	printf("\nUncached Indices\n");
+	for(i=0;i<4;i++)		
+	{
+               for(j=0;j<rejectedKeyBitsLength[i];j++)
+              {
+		      printf("%d\t",uncachedIndices[i][j]);
+	      }
+	       printf("\n");
+	}
 
+	printf("\nRejected Key Bits\n");
+	for(i=0;i<4;i++)                        
+       {
+               for(j=0;j<rejectedKeyBitsLength[i];j++)
+               {       
+                      printf("%d\t",rejectedKeyBits[i][j]);
+                }
+                printf("\n");
+        }
+
+	for(i=0;i<4;i++)
+	{
+		for(j=0;j<rejectedKeyBitsLength[i];j++)
+		{
+        		result=rejectedKeyBits[i][j];
+		        possibleKeySet[i][result]=-1;
+		}
+	}
+
+	printf("\nModified possible key set\n");
+	for(i=0;i<16;i++)
+	{
+		for(j=0;j<256;j++)
+		{
+			printf("%d\t",possibleKeySet[i][j]);
+		}
+		printf("\n");
+	}
+}
+*/
 int main(int argc, char **argv)
 {
 	FILE *fp=fopen(argv[1],"w+");
@@ -65,17 +111,15 @@ int main(int argc, char **argv)
 	int flag=0;
 
 //Generate all possible key values
-	for(i=0;i<16;i++)
+	/*for(i=0;i<16;i++)
 	{
 		for(j=0;j<256;j++)
 		{
 		possibleKeySet[i][j]=j;
 		}
-	}
-
+	}*/
 
         //create and fill array
-
         for(i=0;i<4194305;i++)
                 a[i]='a';
 
@@ -89,7 +133,8 @@ int main(int argc, char **argv)
 		{ 
 		      i=l*64;
         	//to cover all 8 lines of set1
-			unsigned long long cycles = rdtsc();
+			
+unsigned long long cycles = rdtsc();
 	        	for(j=0;j<16;j++)
 		        {  
 			     count=0;
@@ -145,15 +190,17 @@ int main(int argc, char **argv)
 		        strftime(buff,100,"%H:%M:%S.000",localtime(&now));
 			printf("\nAES ATTACK at %s\n",buff);
 			flag=0;
-			break;
+//printf("\nBreaking");
+		//	break;
 
 		}
-
+//printf("Waiting for attack");
 	}
-	attack();
+	printf("\nStarting attack :");
+//	attack();
 }
 
-int conversion(char hexaDecimal[7])
+/*int setNumber(char hexaDecimal[7])
 {
 char binaryNumber[24],modifiedBinary[12],ch;
     int i,j,blen,len,temp;
@@ -217,4 +264,4 @@ int setSearch(int tableNumber, int setNumber)
    }
    return 0;   
 }
-
+*/
