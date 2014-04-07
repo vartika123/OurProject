@@ -12,20 +12,23 @@ static __inline__ unsigned long long rdtsc(void)
      return x;
 }
 
-char T[4][8]={"4211008","4213056","4215104","4217152"};
-int plaintext[16]={0x28,0xFF,0x10,0x02,0x24,0x0A,0x79,0x19,0xDA,0x76,0x99,0x9C,0x49,0x33,0x12,0x39};
-int cachedset[4][4]={{265,266,270,288},{294,299,307,324},{327,327,340,344},{357,360,364, 376}};
+char T[4][8]={"4210880","4212928","4214976","4217024"};
+int plaintext[16]={0x24,0x0A,0x79,0x19,0xDA,0x76,0x99,0x9C,0x28,0xFF,0x10,0x02,0x49,0x33,0x12,0x39};
+int cachedset[4][4]={{265,266,274,288},{294,299,299,312},{334,337,342,350},{362,367,377, 382}};
+
+
 int uncachedIndices[4][256]={-1};
 int cyc[4][4]={0};
 int rejectedKeyBits[16][256]={-1};
 int uncachedIndicesLength[4]={-1};
 int possibleKeySet[16][256]={-1};
-FILE *fp;
+FILE *fp,*fp1;
 
 
 void attack()
 {
-	int result;
+	int latest[16][256];
+	int result,val;
 	char buff[10];
 	int set[4][256],i,j,k=0;
 	//4 look up tables
@@ -102,24 +105,83 @@ void attack()
 		        possibleKeySet[i][result]=-1;
 			count++;
 		}
-	printf("%d %d\n",i,count);
+	printf("%d %d\n",i,(256-count));
 	}
 
 	
 	/*printf("\nModified possible key set\n");*/
 	for(i=0;i<16;i++)
 	{
-		fprintf(fp,"BYTE %d\n",i);
+		//fprintf(fp,"-----------------------------------------------");
 		for(j=0;j<256;j++)
 		{
 			fprintf(fp,"%d\t",possibleKeySet[i][j]);
 		}
-		fprintf(fp,"\n\n");
+		fprintf(fp,"-----------------------------------------------\n\n");
 	}
 
+	fclose(fp);
 
+
+	/*for(i=0;i<16;i++)
+	{
+		for(j=0;j<256;j++)
+		{
+			printf("%d\t",possibleKeySet[i][j]);
+		}
+		printf("\n");
+	}*/
+
+//	int val;
+	fp1=fopen("final","r");
+	/*for(i=0;i<16;i++)
+        {
+                for(j=0;j<256;j++)
+                {
+                        printf("%d\t",possibleKeySet[i][j]);
+                }
+                printf("\n");
+        }*/
+
+	for(i=0;i<16;i++)
+	{
+        	for(j=0;j<256;j++)
+        	{		
+	 //printf("possible=%d\t",possibleKeySet[i][j]);	
+				fscanf(fp1,"%d",&val);
+                	
+				//printf("%d\t",val);
+				//printf("possible=%d\t",possibleKeySet[i][j]);
+                        	if(val==-1)
+                                {//	printf("val=%d\t",val);
+					//printf("possible=%d\t",possibleKeySet[i][j]);
+					latest[i][j]=-1;
+				}
+				else if(possibleKeySet[i][j]==-1)
+					latest[i][j]=-1;
+                        	else 
+                                	latest[i][j]=val;
+				printf("%d\t",latest[i][j]);
+                	
+        	}
+		printf("\n");
+	}
+
+	fclose(fp1);
+	fp1=fopen("final","w");
+	for(i=0;i<16;i++)
+	{
+        	fprintf(fp1,"-----------------------"); 
+        	for(j=0;j<256;j++)
+        	{
+			fprintf(fp1,"%d\t",latest[i][j]);
+        	}
+        	fprintf(fp1,"\n\n");
+	}
+	fclose(fp1);
 
 }
+
 
 int main(int argc, char **argv)
 {
