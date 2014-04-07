@@ -12,19 +12,20 @@ static __inline__ unsigned long long rdtsc(void)
      return x;
 }
 
-//char T[4][8]={"4211008","4213056","4215104","4217152"};
-//int plaintext[4]={0x28,0xFF,0x10,0x02};
-int cachedset[4][4]={{266,265,288,270},{294,307,299,324},{344,327,327,340},{364,357,360, 376}};
-//int uncachedIndices[4][256]={-1};
+char T[4][8]={"4211008","4213056","4215104","4217152"};
+int plaintext[16]={0x28,0xFF,0x10,0x02,0x24,0x0A,0x79,0x19,0xDA,0x76,0x99,0x9C,0x49,0x33,0x12,0x39};
+int cachedset[4][4]={{265,266,270,288},{294,299,307,324},{327,327,340,344},{357,360,364, 376}};
+int uncachedIndices[4][256]={-1};
 int cyc[4][4]={0};
-//int rejectedKeyBits[4][256]={-1};
-//int rejectedKeyBitsLength[4]={-1};
-//int possibleKeySet[16][256]={-1};
+int rejectedKeyBits[16][256]={-1};
+int uncachedIndicesLength[4]={-1};
+int possibleKeySet[16][256]={-1};
+FILE *fp;
 
 
-/*void attack()
+void attack()
 {
-        int result;
+	int result;
 	char buff[10];
 	int set[4][256],i,j,k=0;
 	//4 look up tables
@@ -38,15 +39,25 @@ int cyc[4][4]={0};
 			result = setSearch(i,set[i][j]);
 			if(!result)
 			{
-			        uncachedIndices[i][k]=j;
-			        rejectedKeyBits[i][k]=uncachedIndices[i][k]^plaintext[i];
+			     	uncachedIndices[i][k]=j;
+			   //     rejectedKeyBits[i][k]=uncachedIndices[i][k]^plaintext[i];
 			        k++;
 			}
+			
 		}
-		rejectedKeyBitsLength[i]=k;
+		uncachedIndicesLength[i]=k;
 	}
 	
-	printf("\nset[i][j]\n");
+	for(i=0;i<16;i++)
+	{	
+		for(j=0;j<uncachedIndicesLength[i%4];j++)
+		{
+			rejectedKeyBits[i][j]=uncachedIndices[i%4][j]^plaintext[i];
+
+		}
+	}	
+
+	/*printf("\nset[i][j]\n");
 	for(i=0;i<4;i++)
 	{
 		printf("table 1:");
@@ -57,14 +68,14 @@ int cyc[4][4]={0};
 		printf("\n");
 	}
 	
-	printf("\nRejected key bits length");
+	printf("\nUncached Indices length");
 	for(i=0;i<4;i++)
-		printf("%d\t",rejectedKeyBitsLength[i]);
+		printf("%d\t",uncachedIndicesLength[i]);
 	
 	printf("\nUncached Indices\n");
 	for(i=0;i<4;i++)		
 	{
-               for(j=0;j<rejectedKeyBitsLength[i];j++)
+               for(j=0;j<uncachedIndicesLength[i];j++)
               {
 		      printf("%d\t",uncachedIndices[i][j]);
 	      }
@@ -72,38 +83,47 @@ int cyc[4][4]={0};
 	}
 
 	printf("\nRejected Key Bits\n");
-	for(i=0;i<4;i++)                        
+	for(i=0;i<16;i++)                        
        {
-               for(j=0;j<rejectedKeyBitsLength[i];j++)
+               for(j=0;j<uncachedIndicesLength[i%4];j++)
                {       
                       printf("%d\t",rejectedKeyBits[i][j]);
                 }
-                printf("\n");
-        }
+                printf("\n\n");
+        	
+	}
+	printf("\n");*/
 
-	for(i=0;i<4;i++)
-	{
-		for(j=0;j<rejectedKeyBitsLength[i];j++)
+	for(i=0;i<16;i++)
+	{	int count=0;
+		for(j=0;j<uncachedIndicesLength[i%4];j++)
 		{
         		result=rejectedKeyBits[i][j];
 		        possibleKeySet[i][result]=-1;
+			count++;
 		}
+	printf("%d %d\n",i,count);
 	}
 
-	printf("\nModified possible key set\n");
+	
+	/*printf("\nModified possible key set\n");*/
 	for(i=0;i<16;i++)
 	{
+		fprintf(fp,"BYTE %d\n",i);
 		for(j=0;j<256;j++)
 		{
-			printf("%d\t",possibleKeySet[i][j]);
+			fprintf(fp,"%d\t",possibleKeySet[i][j]);
 		}
-		printf("\n");
+		fprintf(fp,"\n\n");
 	}
+
+
+
 }
-*/
+
 int main(int argc, char **argv)
 {
-	FILE *fp=fopen(argv[1],"w+");
+	fp=fopen(argv[1],"w+");
         char a[4194305];
 	char buff[100];
         int i,j,k,m,n,count,l,increment=0,h=0;
@@ -111,13 +131,13 @@ int main(int argc, char **argv)
 	int flag=0;
 
 //Generate all possible key values
-	/*for(i=0;i<16;i++)
+	for(i=0;i<16;i++)
 	{
 		for(j=0;j<256;j++)
 		{
 		possibleKeySet[i][j]=j;
 		}
-	}*/
+	}
 
         //create and fill array
         for(i=0;i<4194305;i++)
@@ -155,7 +175,7 @@ unsigned long long cycles = rdtsc();
  	
 			if(cycles>8000)
 			{
-			//	printf("cycle greater than 8000= %d\t",l);
+				printf("cycle greater than 8000= %d\t",l);
 				for(m=0;m<4;m++)
 				{
 					for(n=0;n<4;n++)
@@ -190,17 +210,17 @@ unsigned long long cycles = rdtsc();
 		        strftime(buff,100,"%H:%M:%S.000",localtime(&now));
 			printf("\nAES ATTACK at %s\n",buff);
 			flag=0;
-//printf("\nBreaking");
-		//	break;
+			printf("\nBreaking");
+			break;
 
 		}
-//printf("Waiting for attack");
+	printf("Waiting for attack");
 	}
 	printf("\nStarting attack :");
-//	attack();
+	attack();
 }
 
-/*int setNumber(char hexaDecimal[7])
+int setNumber(char hexaDecimal[7])
 {
 char binaryNumber[24],modifiedBinary[12],ch;
     int i,j,blen,len,temp;
@@ -243,25 +263,24 @@ return set;
 
 int setSearch(int tableNumber, int setNumber)
 {
-   int c, first, last, middle, n, search, array[100];
- 
+   int first, last, middle;
    first = 0;
-   last = n - 1;
+   last = 3;
    middle = (first+last)/2;
  
    while( first <= last )
    {
-      if ( cachedset[tableNumber][middle] < search )
-         first = middle + 1;    
-      else if ( cachedset[tableNumber][middle] == search ) 
+      if ( setNumber < cachedset[tableNumber][middle] )
+         last = middle - 1;    
+      else if ( cachedset[tableNumber][middle] == setNumber) 
       {
          return 1;
       }
       else
-         last = middle - 1;
+         first = middle + 1;
  
       middle = (first + last)/2;
    }
    return 0;   
 }
-*/
+
