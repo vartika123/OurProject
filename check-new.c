@@ -13,8 +13,8 @@ static __inline__ unsigned long long rdtsc(void)
 }
 
 char T[4][8]={"4210880","4212928","4214976","4217024"};
-int plaintext[16]={0x24,0x0A,0x79,0x19,0xDA,0x76,0x99,0x9C,0x28,0xFF,0x10,0x02,0x49,0x33,0x12,0x39};
-int cachedset[4][4]={{265,266,274,288},{294,299,299,312},{334,337,342,350},{362,367,377, 382}};
+int plaintext[16]={0xAB,0xCD,0xEF,0xAB,0xCD,0xEF,0xAB,0xCD,0xEF,0xAB,0xCD,0xEF,0xAB,0xCD,0xEF,0xAB};
+int cachedset[4][4]={{260,271,278,282},{303,310,312,321},{341,342,348,348},{372,380,380,382}};
 
 
 int uncachedIndices[4][256]={-1};
@@ -56,11 +56,13 @@ void attack()
 		for(j=0;j<uncachedIndicesLength[i%4];j++)
 		{
 			rejectedKeyBits[i][j]=uncachedIndices[i%4][j]^plaintext[i];
+//			printf("%d\t",plaintext[i]);
+//			printf("%x\n",plaintext[i]);
 
 		}
 	}	
 
-	/*printf("\nset[i][j]\n");
+/*	printf("\nset[i][j]\n");
 	for(i=0;i<4;i++)
 	{
 		printf("table 1:");
@@ -95,17 +97,17 @@ void attack()
                 printf("\n\n");
         	
 	}
-	printf("\n");*/
-
+	printf("\n");
+*/
 	for(i=0;i<16;i++)
-	{	int count=0;
+	{//	int count=0;
 		for(j=0;j<uncachedIndicesLength[i%4];j++)
 		{
         		result=rejectedKeyBits[i][j];
 		        possibleKeySet[i][result]=-1;
-			count++;
+//			count++;
 		}
-	printf("%d %d\n",i,(256-count));
+//	printf("%d %d\n",i,(256-count));
 	}
 
 	
@@ -117,32 +119,23 @@ void attack()
 		{
 			fprintf(fp,"%d\t",possibleKeySet[i][j]);
 		}
-		fprintf(fp,"-----------------------------------------------\n\n");
+		fprintf(fp,"\n\n");
 	}
 
 	fclose(fp);
 
-
-	/*for(i=0;i<16;i++)
+/*	printf("Possible key set\n");
+	for(i=0;i<16;i++)
 	{
 		for(j=0;j<256;j++)
 		{
 			printf("%d\t",possibleKeySet[i][j]);
 		}
 		printf("\n");
-	}*/
-
+	}
+*/
 //	int val;
 	fp1=fopen("final","r");
-	/*for(i=0;i<16;i++)
-        {
-                for(j=0;j<256;j++)
-                {
-                        printf("%d\t",possibleKeySet[i][j]);
-                }
-                printf("\n");
-        }*/
-
 	for(i=0;i<16;i++)
 	{
         	for(j=0;j<256;j++)
@@ -150,7 +143,7 @@ void attack()
 	 //printf("possible=%d\t",possibleKeySet[i][j]);	
 				fscanf(fp1,"%d",&val);
                 	
-				//printf("%d\t",val);
+			//	printf("%d\t",val);
 				//printf("possible=%d\t",possibleKeySet[i][j]);
                         	if(val==-1)
                                 {//	printf("val=%d\t",val);
@@ -161,17 +154,30 @@ void attack()
 					latest[i][j]=-1;
                         	else 
                                 	latest[i][j]=val;
-				printf("%d\t",latest[i][j]);
+		//		printf("%d\t",latest[i][j]);
                 	
         	}
-		printf("\n");
+//		printf("\n");
+	}
+
+	for(i=0;i<16;i++)
+	{
+		int count=0;
+		for(j=0;j<256;j++)
+		{
+			if(latest[i][j]==-1)
+			{
+				count++;	
+			}
+		}
+		printf("%d : %d\n",i,(256-count));
 	}
 
 	fclose(fp1);
 	fp1=fopen("final","w");
 	for(i=0;i<16;i++)
 	{
-        	fprintf(fp1,"-----------------------"); 
+         
         	for(j=0;j<256;j++)
         	{
 			fprintf(fp1,"%d\t",latest[i][j]);
@@ -202,7 +208,7 @@ int main(int argc, char **argv)
 	}
 
         //create and fill array
-        for(i=0;i<4194305;i++)
+/*        for(i=0;i<4194305;i++)
                 a[i]='a';
 
 	while(1)
@@ -280,8 +286,10 @@ unsigned long long cycles = rdtsc();
 	}
 	printf("\nStarting attack :");
 	attack();
-}
+}*/
 
+attack();
+}
 int setNumber(char hexaDecimal[7])
 {
 char binaryNumber[24],modifiedBinary[12],ch;
